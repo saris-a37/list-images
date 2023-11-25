@@ -20,6 +20,11 @@ a simple darktable Lua add-on to export a list of images in the current collecti
 * set the target directory and output text file name
 * click 'export'
 
+## TO-DOs
+
+- [ ] module presets
+- [ ] pre-defined variables in file name
+
 ## LICENSE
 
 GPLv2

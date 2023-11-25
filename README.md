@@ -10,7 +10,8 @@ a simple darktable Lua add-on to export a list of images in the current collecti
 
 * copy this file in $CONFIGDIR/lua/ where CONFIGDIR is your darktable configuration directory
 * add the following line in the file $CONFIGDIR/luarc
-  require "list_images"
+
+``` require "list_images" ```
 
 ## USAGE
 

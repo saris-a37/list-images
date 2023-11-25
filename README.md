@@ -22,6 +22,7 @@ a simple darktable Lua add-on to export a list of images in the current collecti
 
 ## TO-DOs
 
+- [x] selected image(s) only check-button
 - [ ] module presets
 - [ ] pre-defined variables in file name
 

@@ -78,6 +78,14 @@ end
 
 --configure output
 
+----image range
+
+li.widgets.selected_only = dt.new_widget("check_button"){
+	label = "include only selected image(s)",
+	value = false,
+	reset_callback = function(self) self.value = false end
+}
+
 ----string format
 
 li.widgets.string = dt.new_widget("combobox"){
@@ -142,6 +150,7 @@ li.widgets.export_button = dt.new_widget("button"){
 		
 		--checks for error(s)
 		li.configurations.errors = "ERROR"
+		if(li.widgets.selected_only.value == true and next(dt.gui.selection()) == nil) then li.configurations.errors = li.configurations.errors.."\nset to include only selected photo(s) but no photo is selected" end
 		if(li.widgets.string.value == "" or li.widgets.string.value == nil) then li.configurations.errors = li.configurations.errors.."\noutput string format not selected" end
 		if(li.widgets.seperator.value == "" or li.widgets.seperator.value == nil) then li.configurations.errors = li.configurations.errors.."\nseperator not set" end
 		if(li.widgets.destination.value == "" or li.widgets.destination.value == nil) then li.configurations.errors = li.configurations.errors.."\ndestination folder not set" end
@@ -164,11 +173,21 @@ li.widgets.export_button = dt.new_widget("button"){
 			['new line'] = "\n",
 			['custom string'] = li.widgets.custom_string_seperator.text
 		}
-		if(li.widgets.string.value == "path and file name") then
-			for _,photo in ipairs(dt.collection) do dt.print_log(tostring(output:write(tostring(photo)..li.configurations.seperator[li.widgets.seperator.value]))) end
-		end
-		if(li.widgets.string.value == "file name") then
-			for _,photo in ipairs(dt.collection) do dt.print_log(tostring(output:write(tostring(photo.filename)..li.configurations.seperator[li.widgets.seperator.value]))) end
+		if(li.widgets.selected_only.value == false) then
+			if(li.widgets.string.value == "path and file name") then
+				for _,photo in ipairs(dt.collection) do dt.print_log(tostring(output:write(tostring(photo)..li.configurations.seperator[li.widgets.seperator.value]))) end
+			elseif(li.widgets.string.value == "file name") then
+				for _,photo in ipairs(dt.collection) do dt.print_log(tostring(output:write(tostring(photo.filename)..li.configurations.seperator[li.widgets.seperator.value]))) end
+			else return
+			end
+		elseif(li.widgets.selected_only.value == true) then
+			dt.print_log(tostring(output:write("(selected only)\n")))
+			if(li.widgets.string.value == "path and file name") then
+				for _,photo in ipairs(dt.gui.selection()) do dt.print_log(tostring(output:write(tostring(photo)..li.configurations.seperator[li.widgets.seperator.value]))) end
+			elseif(li.widgets.string.value == "file name") then
+				for _,photo in ipairs(dt.gui.selection()) do dt.print_log(tostring(output:write(tostring(photo.filename)..li.configurations.seperator[li.widgets.seperator.value]))) end
+			else return
+			end
 		end
 		
 		--finishes task
@@ -184,6 +203,7 @@ li.widgets.main_box = dt.new_widget("box"){
 	orientation = "vertical",
 	--li.widgets.tag_list,
 	dt.new_widget("label"){ label = "output configuration" },
+	li.widgets.selected_only,
 	li.widgets.string,
 	li.widgets.seperator,
 	li.widgets.custom_string_seperator,

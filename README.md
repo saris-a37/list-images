@@ -23,8 +23,8 @@ a simple darktable Lua add-on to export a list of images in the current collecti
 ## TO-DOs
 
 - [x] selected image(s) only check-button
-- [ ] module presets
-- [ ] pre-defined variables in file name
+- [x] use common parent directory as destination check-button (with function to find path)
+- [x] auto-apply default settings
 
 ## LICENSE
 

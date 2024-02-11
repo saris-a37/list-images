@@ -126,11 +126,68 @@ li.widgets.seperator = dt.new_widget("combobox"){
 
 --destination
 
+----use common parent directory as destination
+
+li.widgets.common_parent_directory_destination = dt.new_widget("check_button"){
+	label = "use common parent directory of selected filmroll(s) as destination",
+	value = false,
+	reset_callback = function(self) self.value = false end,
+	clicked_callback = function(self)
+		local filmroll_directories = {}
+		for _,rule in ipairs(dt.gui.libs.collect.filter()) do
+			if (rule.item == "DT_COLLECTION_PROP_FILMROLL" and rule.data ~= nil and rule.data ~= "") then table.insert(filmroll_directories, rule.data) end
+		end
+		local common_parent_directory_length
+		if (#filmroll_directories == 0) then
+			for _,filmroll in ipairs(dt.films) do table.insert(filmroll_directories, filmroll.path) end
+		end
+		if (#filmroll_directories == 1) then common_parent_directory_length = #filmroll_directories[1]
+		elseif (#filmroll_directories > 1) then common_parent_directory_length = findCommonParentDirectoryLength(filmroll_directories, #filmroll_directories, '/') end
+		if(self.value == true) then
+			li.widgets.destination.value = filmroll_directories[1]:sub(1, common_parent_directory_length)
+			li.widgets.common_parent_directory_destination_label.visible = true
+			li.widgets.common_parent_directory_destination_label.label = filmroll_directories[1]:sub(1, common_parent_directory_length)
+			li.widgets.destination.visible = false
+		else
+			li.widgets.common_parent_directory_destination_label.visible = false
+			li.widgets.destination.visible = true
+		end
+	end
+}
+
+------find common parent directory length (adapted from https://rosettacode.org/wiki/Find_common_directory_path#C)
+
+function findCommonParentDirectoryLength(directories, n, sep)
+    local i, pos
+    for pos = 1, #directories[1] do
+        for i = 1, n do
+            if directories[i]:sub(pos, pos) ~= "" and directories[i]:sub(pos, pos) == directories[1]:sub(pos, pos) then
+                goto continue
+            else
+                -- backtrack
+                repeat
+                    pos = pos - 1
+                until pos == 0 or directories[1]:sub(pos, pos) == sep
+                return pos
+            end
+            ::continue::
+        end
+    end
+    return 0
+end
+
+------show common parent directory if checked
+
+li.widgets.common_parent_directory_destination_label = dt.new_widget("label"){
+	visible = false
+}
+
 ----destination folder
 
 li.widgets.destination = dt.new_widget("file_chooser_button"){
 	title = "Select a Folder",
 	is_directory = true,
+	visible = true,
 	reset_callback = function(self) self.value = "" end
 }
 
@@ -158,6 +215,12 @@ li.widgets.export_button = dt.new_widget("button"){
 		if(li.configurations.errors ~= "ERROR") then
 			dt.print(li.configurations.errors)
 			return
+		end
+
+		--refresh common parent directory if checked
+		if(li.widgets.common_parent_directory_destination.value == true) then
+			li.widgets.common_parent_directory_destination.value = false
+			li.widgets.common_parent_directory_destination.value = true
 		end
 		
 		--writes output file
@@ -208,6 +271,8 @@ li.widgets.main_box = dt.new_widget("box"){
 	li.widgets.seperator,
 	li.widgets.custom_string_seperator,
 	dt.new_widget("label"){ label = "export destination" },
+	li.widgets.common_parent_directory_destination,
+	li.widgets.common_parent_directory_destination_label,
 	li.widgets.destination,
 	li.widgets.file_name,
 	li.widgets.export_button

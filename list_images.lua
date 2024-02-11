@@ -207,14 +207,38 @@ li.widgets.export_button = dt.new_widget("button"){
 		
 		--checks for error(s)
 		li.configurations.errors = "ERROR"
-		if(li.widgets.selected_only.value == true and next(dt.gui.selection()) == nil) then li.configurations.errors = li.configurations.errors.."\nset to include only selected photo(s) but no photo is selected" end
-		if(li.widgets.string.value == "" or li.widgets.string.value == nil) then li.configurations.errors = li.configurations.errors.."\noutput string format not selected" end
 		if(li.widgets.seperator.value == "" or li.widgets.seperator.value == nil) then li.configurations.errors = li.configurations.errors.."\nseperator not set" end
-		if(li.widgets.destination.value == "" or li.widgets.destination.value == nil) then li.configurations.errors = li.configurations.errors.."\ndestination folder not set" end
-		if(li.widgets.file_name.text == "" or li.widgets.file_name.text == nil) then li.configurations.errors = li.configurations.errors.."\nfile name not set" end
+		if(li.widgets.selected_only.value == true and next(dt.gui.selection()) == nil) then li.configurations.errors = li.configurations.errors.."\nset to include only selected photo(s) but no photo is selected" end
 		if(li.configurations.errors ~= "ERROR") then
 			dt.print(li.configurations.errors)
 			return
+		end
+
+		--checks where default options could be applied
+		li.configurations.default_options_applied = "APPLYING DEFAULT OPTION(S)"
+		if(li.widgets.string.value == "" or li.widgets.string.value == nil) then
+			local filmroll_directories = {}
+			for _,rule in ipairs(dt.gui.libs.collect.filter()) do
+				if (rule.item == "DT_COLLECTION_PROP_FILMROLL" and rule.data ~= nil and rule.data ~= "") then table.insert(filmroll_directories, rule.data) end
+			end
+			if(#filmroll_directories == 0 or #filmroll_directories > 1) then
+				li.widgets.string.value = 2
+				li.configurations.default_options_applied = li.configurations.default_options_applied.."\noutput string format not selected, defaulting to path and file name"
+			elseif(#filmroll_directories == 1) then
+				li.widgets.string.value = 1
+				li.configurations.default_options_applied = li.configurations.default_options_applied.."\noutput string format not selected, defaulting to file name"
+			end
+		end
+		if(li.widgets.destination.value == "" or li.widgets.destination.value == nil) then
+			li.widgets.common_parent_directory_destination.value = true
+			li.configurations.default_options_applied = li.configurations.default_options_applied.."\ndestination folder not set, defaulting to common parent directory"
+		end
+		if(li.widgets.file_name.text == "" or li.widgets.file_name.text == nil) then
+			li.widgets.file_name.text = "list-images_"..os.date("%Y%m%d%H%M%S")
+			li.configurations.default_options_applied = li.configurations.default_options_applied.."\nfile name not set, defaulting to list-images_datetime"
+		end
+		if(li.configurations.default_options_applied ~= "APPLYING DEFAULT OPTION(S)") then
+			dt.print(li.configurations.default_options_applied)
 		end
 
 		--refresh common parent directory if checked

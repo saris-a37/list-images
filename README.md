@@ -1,5 +1,7 @@
 # list-images
 
+![image](https://github.com/saris-a37/list-images/assets/62101258/99bda10b-9c3e-4a4c-ae0a-f3c4a8d45ebb)
+
 a simple darktable Lua add-on to export a list of images in the current collection as text file
 
 ## AUTHOR
